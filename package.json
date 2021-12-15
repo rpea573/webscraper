@@ -16,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/rpea573/webscraper/issues"
   },
-  "homepage": "https://github.com/rpea573/webscraper#readme"
+  "homepage": "https://github.com/rpea573/webscraper#readme",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
+    "express": "^4.17.1",
+    "puppeteer": "^13.0.0"
+  }
 }
