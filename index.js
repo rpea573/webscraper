@@ -52,9 +52,12 @@ const retrieveStandard = () => {
       let car = "";
       let other = "";
 
-      const info = Array.from(standard.querySelectorAll(".other"), (info) => {
-        return info.innerHTML;
-      });
+      const info = Array.from(
+        standard.querySelectorAll(".other .s"),
+        (info) => {
+          return info.innerHTML;
+        }
+      );
 
       for (const i of info) {
         if (i.includes("badroom")) {
@@ -81,18 +84,56 @@ const retrieveStandard = () => {
   );
 };
 
+let salesData = [];
+
 // Controller - we will to go to next page and repeat this and continuously add the new data to the end of an array. We will then need to save the data...
 const scrape = async () => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
+  // const url =
+  //   "https://www.oneroof.co.nz/search/sold/suburb_avondale-auckland-city-153,blockhouse-bay-auckland-city-2776,kingsland-auckland-city-843,mount-albert-auckland-city-960,mount-roskill-auckland-city-589,new-windsor-auckland-city-1491,onehunga-auckland-city-2899,sandringham-auckland-city-2212,waterview-auckland-city-2155_page_1";
+
   const url =
-    "https://www.oneroof.co.nz/search/sold/suburb_avondale-auckland-city-153,blockhouse-bay-auckland-city-2776,kingsland-auckland-city-843,mount-albert-auckland-city-960,mount-roskill-auckland-city-589,new-windsor-auckland-city-1491,onehunga-auckland-city-2899,sandringham-auckland-city-2212,waterview-auckland-city-2155_page_1";
+    "https://www.oneroof.co.nz/search/sold/suburb_mount-albert-auckland-city-960,sandringham-auckland-city-2212,waterview-auckland-city-2155_bedroom_5_page_1";
+
   await page.goto(url);
 
-  const featured = await page.evaluate(retrieveFeatured);
-  console.log(featured);
-  const standard = await retrieveStandard();
-  console.log(standard);
+  let nextPage = true;
+  let count = 1;
+  while (nextPage) {
+    let featured = await page.evaluate(retrieveFeatured);
+    let standard = await page.evaluate(retrieveStandard);
+
+    if (featured.length > 0) {
+      salesData = salesData.concat(featured);
+    }
+
+    if (standard.length > 0) {
+      salesData = salesData.concat(standard);
+    }
+
+    console.log(count);
+    count += 1;
+
+    nextPage = await page.evaluate(() => {
+      let nextButton = document.querySelector(".btn-next").className;
+      if (nextButton.includes("notap")) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+
+    if (nextPage) {
+      await page.waitForNavigation({ waitUntil: "networkidle2" });
+      await page.click(".btn-next");
+    }
+
+    console.log(nextPage);
+  }
+
+  console.log(salesData);
+
   await browser.close();
 };
 
