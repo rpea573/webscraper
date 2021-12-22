@@ -1,5 +1,5 @@
-const { last } = require("cheerio/lib/api/traversing");
 const puppeteer = require("puppeteer");
+const fs = require("fs");
 
 let scrape = async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -21,15 +21,13 @@ let scrape = async () => {
     // call and wait extractedEvaluateCall and concatenate results every iteration.
     // You can use results.push, but will get collection of collections at the end of iteration
     results = results.concat(await pageListings(page));
-    console.log("inside");
     // this is where next button on page clicked to jump to another page
     if (i != lastPageNumber) {
       // no next button on last page
       await page.click(".btn-next");
     }
   }
-  console.log("outside");
-  //   browser.close();
+  browser.close();
   return results;
 };
 
@@ -121,7 +119,8 @@ async function pageListings(page) {
 }
 
 scrape().then((value) => {
-  console.log(value);
+  const salesData = JSON.stringify(value);
+  fs.writeFileSync("salesData.json", salesData);
   console.log("Collection length: " + value.length);
   console.log(value[0]);
   console.log(value[value.length - 1]);
