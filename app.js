@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
+const { Parser } = require("json2csv");
 
 let scrape = async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -119,9 +120,12 @@ async function pageListings(page) {
 }
 
 scrape().then((value) => {
-  const salesData = JSON.stringify(value);
-  fs.writeFileSync("salesData.json", salesData);
-  console.log("Collection length: " + value.length);
-  console.log(value[0]);
-  console.log(value[value.length - 1]);
+  // const salesData = JSON.stringify(value);
+  const json2csvParser = new Parser();
+  const csvData = json2csvParser.parse(value);
+  console.log(csvData);
+  fs.writeFileSync("soldData.csv", csvData);
+  // console.log("Collection length: " + value.length);
+  // console.log(value[0]);
+  // console.log(value[value.length - 1]);
 });
